@@ -1,4 +1,6 @@
+%% Startup
 
+run startup.m
 %% Task 2
 % Test streaming
 %[xhat, meas] = filterTemplate();

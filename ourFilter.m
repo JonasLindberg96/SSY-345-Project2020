@@ -28,6 +28,10 @@ function [xhat, meas] = ourFilter(calAcc, calGyr, calMag)
   nx = 4;   % Assuming that you use q as state variable.
   % Add your filter settings here.
   Rw = eye(3)*1e-3;
+  Ra = eye(3)*1e-1;
+  
+  g0 = [-0.1247; 0.0077; 9.6096];
+  
 
   % Current filter state.
   x = [1; 0; 0 ;0];
@@ -76,7 +80,8 @@ function [xhat, meas] = ourFilter(calAcc, calGyr, calMag)
 
       acc = data(1, 2:4)';
       if ~any(isnan(acc))  % Acc measurements are available.
-        % Do something
+        [x, P] = mu_g(x, P, yacc, Ra, g0);
+        [x, P] = mux_normalizeQ(x, P);
       end
       gyr = data(1, 5:7)';
       if ~any(isnan(gyr))  % Gyro measurements are available.
