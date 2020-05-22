@@ -30,7 +30,8 @@ function [xhat, meas] = ourFilter(calAcc, calGyr, calMag)
   Rw = eye(3)*1e-3;
   Ra = eye(3)*1e-1;
   
-  g0 = [-0.1247; 0.0077; 9.6096];
+%   g0 = [-0.1247; 0.0077; 9.6096];
+  g0 = [0 0 9.8]';
   
 
   % Current filter state.
@@ -80,8 +81,8 @@ function [xhat, meas] = ourFilter(calAcc, calGyr, calMag)
 
       acc = data(1, 2:4)';
       if ~any(isnan(acc))  % Acc measurements are available.
-        [x, P] = mu_g(x, P, yacc, Ra, g0);
-        [x, P] = mux_normalizeQ(x, P);
+        [x, P] = mu_g(x, P, acc, Ra, g0);
+        [x, P] = mu_normalizeQ(x, P);
       end
       gyr = data(1, 5:7)';
       if ~any(isnan(gyr))  % Gyro measurements are available.
