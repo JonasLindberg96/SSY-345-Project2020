@@ -3,7 +3,7 @@
 run startup.m
 %% Task 2
 % Test streaming
-%[xhat, meas] = filterTemplate();
+[xhat, meas] = filterTemplate();
 
 
 %% Mean and covariance
@@ -100,3 +100,14 @@ title('Magnetometer','FontSize',16)
 xlabel('Time (s)','FontSize',14)
 ylabel('$\mu T$','FontSize',18, 'Interpreter', 'latex')
 legend('X','Y','Z','FontSize',14)
+
+%% Plot Euler 
+% [xhat, measf] = ourFilter();
+
+euler_xhat = q2euler(xhat.x);
+euler_meas = q2euler(measf.orient);
+
+plot(xhat.t, euler_xhat(1,:),'--')
+hold on 
+plot(xhat.t, euler_meas(1,:),'-*')
+legend('Our filter','Google')

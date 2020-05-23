@@ -27,13 +27,30 @@ function [xhat, meas] = ourFilter(calAcc, calGyr, calMag)
   t0 = [];  % Initial time (initialize on first data received)
   nx = 4;   % Assuming that you use q as state variable.
   % Add your filter settings here.
-  Rw = eye(3)*1e-3;
-  Ra = eye(3)*1e-1;
+%   Rw = eye(3)*1e-3;
+%   Ra = eye(3)*1e-1;
   
-%   g0 = [-0.1247; 0.0077; 9.6096];
-  g0 = [0 0 9.8]';
-  
+  Rw = [0.1007,0.0012,0.0007;
+    0.0012,0.0530,0.0026;
+    0.0007,0.0026,0.0467]*1e-4;
 
+ Ra = [0.1545,0.0753,-0.0842;
+    0.0753,0.1792,-0.0840;
+   -0.0842,-0.0840,0.2263]*1e-3;
+  Rm = [20.3254 ,   8.4193 ,  -1.4920;
+    8.4193 ,  42.0064,   -6.4142;
+   -1.4920 ,  -6.4142 ,   6.6191];
+  
+  g0 = [-0.1247; 0.0077; 9.6096];
+  mx = 14.4197;
+  my = 4.6618;
+  mz = 12.9508;
+
+  m0 = [0, sqrt(mx^2 + my^2), mz]';
+  
+  L = norm(m0);
+  Lk = norm(m0);
+  alpha = 0.01;
   % Current filter state.
   x = [1; 0; 0 ;0];
   P = eye(nx, nx);
@@ -80,10 +97,16 @@ function [xhat, meas] = ourFilter(calAcc, calGyr, calMag)
       end
 
       acc = data(1, 2:4)';
-      if ~any(isnan(acc))  % Acc measurements are available.
-        [x, P] = mu_g(x, P, acc, Ra, g0);
-        [x, P] = mu_normalizeQ(x, P);
+      if ~any(isnan(acc)) % Acc measurements are available.
+          if norm(acc) < norm(g0) * 1.05 && norm(acc) > norm(g0) * 0.95
+              [x, P] = mu_g(x, P, acc, Ra, g0);
+              [x, P] = mu_normalizeQ(x, P);
+              ownView.setAccDist(0); % Acc reading are not outliers
+          else
+              ownView.setAccDist(1); % Acc reading are outliers
+          end
       end
+      
       gyr = data(1, 5:7)';
       if ~any(isnan(gyr))  % Gyro measurements are available.
         [x, P] = tu_qw(x, P, gyr, 0.01, Rw);
@@ -92,10 +115,19 @@ function [xhat, meas] = ourFilter(calAcc, calGyr, calMag)
         [x, P] = tu_qw_omegaNAN(x, P);
         [x, P] = mu_normalizeQ(x, P);
       end
-
+     
+      
       mag = data(1, 8:10)';
       if ~any(isnan(mag))  % Mag measurements are available.
-        % Do something
+          L = (1 - alpha) * L + alpha * norm(mag);
+
+          if abs(L - norm(mag)) < L * 0.1 
+              [x, P] = mu_m(x, P, mag, m0, Rm);
+              [x, P] = mu_normalizeQ(x, P);
+              ownView.setMagDist(0); % Acc reading are not outliers
+          else
+              ownView.setMagDist(1); % Mag reading are not outliers
+          end
       end
 
       orientation = data(1, 18:21)';  % Google's orientation estimate.
@@ -126,6 +158,7 @@ function [xhat, meas] = ourFilter(calAcc, calGyr, calMag)
       meas.gyr(:, end+1) = gyr;
       meas.mag(:, end+1) = mag;
       meas.orient(:, end+1) = orientation;
+      
     end
   catch e
     fprintf(['Unsuccessful connecting to client!\n' ...
