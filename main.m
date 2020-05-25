@@ -110,7 +110,7 @@ euler_xhat = rad2deg(q2euler(xhat.x));
 euler_meas = rad2deg(q2euler(measf.orient));
 subplot(3,1,1)
 
-sgtitle('Gyro + Accelerometer + Magnetometer','Fontsize',22)
+sgtitle('Magnetometer + Accelerometer','Fontsize',22)
 plot(xhat.t, euler_xhat(1,:),'--','Linewidth',2)
 hold on 
 plot(xhat.t, euler_meas(1,:),'--','Linewidth',2)

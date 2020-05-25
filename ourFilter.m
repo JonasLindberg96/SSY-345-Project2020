@@ -157,7 +157,7 @@ function [xhat, meas] = ourFilter(calAcc, calGyr, calMag)
       meas.acc(:, end+1) = acc;
       meas.gyr(:, end+1) = gyr;
       meas.mag(:, end+1) = mag;
-      meas.orient(:, end+1) = orientation
+      meas.orient(:, end+1) = orientation;
       
     end
   catch e
