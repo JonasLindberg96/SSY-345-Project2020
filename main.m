@@ -101,13 +101,35 @@ xlabel('Time (s)','FontSize',14)
 ylabel('$\mu T$','FontSize',18, 'Interpreter', 'latex')
 legend('X','Y','Z','FontSize',14)
 
+%% Collect measurement
+clear xhat measf
+[xhat, measf] = ourFilter();
+
 %% Plot Euler 
-% [xhat, measf] = ourFilter();
+euler_xhat = rad2deg(q2euler(xhat.x));
+euler_meas = rad2deg(q2euler(measf.orient));
+subplot(3,1,1)
 
-euler_xhat = q2euler(xhat.x);
-euler_meas = q2euler(measf.orient);
-
-plot(xhat.t, euler_xhat(1,:),'--')
+sgtitle('Gyro + Accelerometer + Magnetometer','Fontsize',22)
+plot(xhat.t, euler_xhat(1,:),'--','Linewidth',2)
 hold on 
-plot(xhat.t, euler_meas(1,:),'-*')
-legend('Our filter','Google')
+plot(xhat.t, euler_meas(1,:),'--','Linewidth',2)
+legend('Our filter','Google','Fontsize',15)
+xlabel('Time (s)','Fontsize',15)
+ylabel('Roll Angle (Degree)','fontsize',15)
+
+subplot(3,1,2)
+plot(xhat.t, euler_xhat(2,:),'--','Linewidth',2)
+hold on 
+plot(xhat.t, euler_meas(2,:),'--','Linewidth',2)
+legend('Our filter','Google','Fontsize',15)
+xlabel('Time (s)','Fontsize',15)
+ylabel('Pitch Angle (Degree)','fontsize',15)
+
+subplot(3,1,3)
+plot(xhat.t, euler_xhat(3,:),'--','Linewidth',2)
+hold on 
+plot(xhat.t, euler_meas(3,:),'--','Linewidth',2)
+legend('Our filter','Google','Fontsize',15)
+xlabel('Time (s)','Fontsize',15)
+ylabel('Yaw Angle (Degree)','fontsize',15)
