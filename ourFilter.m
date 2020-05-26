@@ -36,12 +36,13 @@ function [xhat, meas] = ourFilter(calAcc, calGyr, calMag)
 
  Ra = [0.1545,0.0753,-0.0842;
     0.0753,0.1792,-0.0840;
-   -0.0842,-0.0840,0.2263]*1e-3;
+   -0.0842,-0.0840,0.2263]*1e-1;
   Rm = [20.3254 ,   8.4193 ,  -1.4920;
     8.4193 ,  42.0064,   -6.4142;
-   -1.4920 ,  -6.4142 ,   6.6191];
+   -1.4920 ,  -6.4142 ,   6.6191]*1e1;
   
   g0 = [-0.1247; 0.0077; 9.6096];
+
   mx = 14.4197;
   my = 4.6618;
   mz = 12.9508;
@@ -130,7 +131,9 @@ function [xhat, meas] = ourFilter(calAcc, calGyr, calMag)
           end
       end
 
-      orientation = data(1, 18:21)';  % Google's orientation estimate.
+      orientation = 
+      
+      data(1, 18:21)';  % Google's orientation estimate.
 
       % Visualize result
       if rem(counter, 10) == 0
