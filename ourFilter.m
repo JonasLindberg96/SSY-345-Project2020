@@ -27,31 +27,35 @@ function [xhat, meas] = ourFilter(calAcc, calGyr, calMag)
   t0 = [];  % Initial time (initialize on first data received)
   nx = 4;   % Assuming that you use q as state variable.
   % Add your filter settings here.
-%   Rw = eye(3)*1e-3;
-%   Ra = eye(3)*1e-1;
   
+  % Sensor covariance matrices
   Rw = [0.1007,0.0012,0.0007;
     0.0012,0.0530,0.0026;
     0.0007,0.0026,0.0467]*1e-4;
 
- Ra = [0.1545,0.0753,-0.0842;
+  Ra = [0.1545,0.0753,-0.0842;
     0.0753,0.1792,-0.0840;
    -0.0842,-0.0840,0.2263]*1e-1;
+
   Rm = [20.3254 ,   8.4193 ,  -1.4920;
     8.4193 ,  42.0064,   -6.4142;
    -1.4920 ,  -6.4142 ,   6.6191]*1e1;
   
+  % Define gravitational vector. Captured when phone was lying flat on
+  % table
   g0 = [-0.1247; 0.0077; 9.6096];
 
+  % Define earths magnetic field according to assignment
   mx = 14.4197;
   my = 4.6618;
   mz = 12.9508;
 
   m0 = [0, sqrt(mx^2 + my^2), mz]';
   
+  % Define parameters for AR(1)-filter
   L = norm(m0);
-  Lk = norm(m0);
   alpha = 0.01;
+  
   % Current filter state.
   x = [1; 0; 0 ;0];
   P = eye(nx, nx);
@@ -99,11 +103,12 @@ function [xhat, meas] = ourFilter(calAcc, calGyr, calMag)
 
       acc = data(1, 2:4)';
       if ~any(isnan(acc)) % Acc measurements are available.
-          if norm(acc) < norm(g0) * 1.05 && norm(acc) > norm(g0) * 0.95
+          % Set bounds for outlier rejection
+          if norm(acc) < norm(g0) * 1.05 && norm(acc) > norm(g0) * 0.95 
               [x, P] = mu_g(x, P, acc, Ra, g0);
               [x, P] = mu_normalizeQ(x, P);
               ownView.setAccDist(0); % Acc reading are not outliers
-          else
+          else % Discard outliers
               ownView.setAccDist(1); % Acc reading are outliers
           end
       end
@@ -112,7 +117,7 @@ function [xhat, meas] = ourFilter(calAcc, calGyr, calMag)
       if ~any(isnan(gyr))  % Gyro measurements are available.
         [x, P] = tu_qw(x, P, gyr, 0.01, Rw);
         [x, P] = mu_normalizeQ(x, P);
-      else
+      else % If gyro values are NaN, assume random walk
         [x, P] = tu_qw_omegaNAN(x, P);
         [x, P] = mu_normalizeQ(x, P);
       end
@@ -120,20 +125,20 @@ function [xhat, meas] = ourFilter(calAcc, calGyr, calMag)
       
       mag = data(1, 8:10)';
       if ~any(isnan(mag))  % Mag measurements are available.
+          % Calculate AR(1) filter value
           L = (1 - alpha) * L + alpha * norm(mag);
-
-          if abs(L - norm(mag)) < L * 0.1 
+            
+          % Set bound for AR(1)-filter
+          if abs(L - norm(mag)) < L * 0.1  
               [x, P] = mu_m(x, P, mag, m0, Rm);
               [x, P] = mu_normalizeQ(x, P);
               ownView.setMagDist(0); % Acc reading are not outliers
-          else
+          else % Reading are outliers, discard!
               ownView.setMagDist(1); % Mag reading are not outliers
           end
       end
 
-      orientation = 
-      
-      data(1, 18:21)';  % Google's orientation estimate.
+      orientation = data(1, 18:21)';  % Google's orientation estimate.
 
       % Visualize result
       if rem(counter, 10) == 0
