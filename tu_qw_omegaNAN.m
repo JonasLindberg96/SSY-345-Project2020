@@ -9,7 +9,7 @@ function [x, P] = tu_qw_omegaNAN(x, P)
 %
 % Outputs
 % x - States quaternion
-% P - 
+% P - Covarance
 
 % If no measured angle rate, use random walk
 x = x;

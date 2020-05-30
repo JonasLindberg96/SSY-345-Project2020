@@ -11,7 +11,7 @@ run startup.m
 
 gyr = meas.gyr(:,~isnan(meas.gyr(1,:)))';
 acc = meas.acc(:,~isnan(meas.acc(1,:)))';
-mag = meas.mag(:,~isnan(meas.mag(1,:)))';
+mag = meas_mag.mag(:,~isnan(meas.mag(1,:)))';
 
 mean_gyr = mean(gyr);
 mean_acc = mean(acc);

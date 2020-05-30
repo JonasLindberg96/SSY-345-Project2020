@@ -28,7 +28,7 @@ function [xhat, meas] = ourFilter(calAcc, calGyr, calMag)
   nx = 4;   % Assuming that you use q as state variable.
   % Add your filter settings here.
   
-  % Sensor covariance matrices
+  % Sensor covariance matrices, tuned
   Rw = [0.1007,0.0012,0.0007;
     0.0012,0.0530,0.0026;
     0.0007,0.0026,0.0467]*1e-4;

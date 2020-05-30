@@ -9,12 +9,7 @@ function [x, P] = tu_qw(x, P, omega, T, Rw)
 %
 % Outputs
 % x - States quaternion
-% P - 
-if isnan(omega) % If no measured angle rate, use random walk
-    x = x;
-    P = P + eye(size(x,1)) * 0.001;
-    
-else
+% P - Covariance
     F = eye(size(x,1)) + 1/2 * Somega(omega) * T;
     G = 1/2 * Sq(x) * T;
 
@@ -22,5 +17,4 @@ else
     x = F*x;
     % We update the covariance and the process noise covariance
     P = F*P*F' + G*Rw*G';
-end
 end
